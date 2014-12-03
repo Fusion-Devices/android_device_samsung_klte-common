@@ -121,6 +121,7 @@ PRODUCT_PACKAGES += \
     hostapd.accept \
     hostapd.deny \
     hostapd \
+    hostapd_default.conf \
     libwpa_client \
     wpa_supplicant \
     wpa_supplicant.conf
