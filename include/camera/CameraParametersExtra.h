@@ -56,7 +56,6 @@ int CameraParameters::getInt64(const char *key) const { return -1; } \
     static const char KEY_SUPPORTED_PHASE_AF[]; \
     static const char PAF_ON[]; \
     static const char PAF_OFF[]; \
-    \
     static const char KEY_RT_HDR[]; \
     static const char KEY_SUPPORTED_RT_HDR[]; \
     static const char RTHDR_ON[]; \
