@@ -1291,7 +1291,6 @@ on property:sys.boot_completed=1
 
     # Post boot services
     start mpdecision
-    start qrngp
 
 service hostapd /system/bin/hostapd -dddd /data/hostapd/hostapd.conf
     class late_start
