@@ -24,7 +24,6 @@ import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.telephony.Rlog;
 import android.os.Message;
 import android.os.Parcel;
 import android.telephony.SmsMessage;
@@ -32,12 +31,11 @@ import android.os.SystemProperties;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.telephony.Rlog;
+
+import android.telephony.SignalStrength;
 
 import android.telephony.PhoneNumberUtils;
-import android.telephony.SignalStrength;
-import com.android.internal.telephony.uicc.IccCardApplicationStatus;
-import com.android.internal.telephony.uicc.IccCardStatus;
-
 import com.android.internal.telephony.RILConstants;
 import com.android.internal.telephony.gsm.SmsBroadcastConfigInfo;
 import com.android.internal.telephony.cdma.CdmaInformationRecords;
@@ -47,6 +45,9 @@ import com.android.internal.telephony.cdma.SignalToneUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import com.android.internal.telephony.uicc.IccCardApplicationStatus;
+import com.android.internal.telephony.uicc.IccCardStatus;
 
 /**
  * RIL customization for Galaxy S5 LTE devices
@@ -61,16 +62,8 @@ public class KlteRIL extends RIL implements CommandsInterface {
     private boolean mIsSendingSMS = false;
     protected boolean isGSM = false;
     public static final long SEND_SMS_TIMEOUT_IN_MS = 30000;
-    private boolean samsungEmergency = needsOldRilFeature("samsungEMSReq");
 
     private Message mPendingGetSimStatus;
-
-    public KlteRIL(Context context, int networkMode,
-            int cdmaSubscription) {
-        super(context, networkMode, cdmaSubscription);
-        mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
-        mQANElements = 6;
-    }
 
     public KlteRIL(Context context, int preferredNetworkType,
             int cdmaSubscription, Integer instanceId) {
@@ -79,13 +72,21 @@ public class KlteRIL extends RIL implements CommandsInterface {
         mQANElements = 6;
     }
 
+    public KlteRIL(Context context, int networkMode,
+            int cdmaSubscription) {
+        super(context, networkMode, cdmaSubscription);
+        mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        mQANElements = 6;
+    }
+
     @Override
     public void
     dial(String address, int clirMode, UUSInfo uusInfo, Message result) {
-        if (samsungEmergency && PhoneNumberUtils.isEmergencyNumber(address)) {
+        if (PhoneNumberUtils.isEmergencyNumber(address)) {
             dialEmergencyCall(address, clirMode, result);
             return;
         }
+
         RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL, result);
 
         rr.mParcel.writeString(address);
@@ -194,9 +195,6 @@ public class KlteRIL extends RIL implements CommandsInterface {
     }
 
     private void smsLock(){
-        // Do not send a new SMS until the response for the previous SMS has been received
-        //   * for the error case where the response never comes back, time out after
-        //     30 seconds and just try the next SEND_SMS
         synchronized (mSMSLock) {
             long timeoutTime  = SystemClock.elapsedRealtime() + SEND_SMS_TIMEOUT_IN_MS;
             long waitTimeLeft = SEND_SMS_TIMEOUT_IN_MS;
@@ -269,16 +267,14 @@ public class KlteRIL extends RIL implements CommandsInterface {
             dc.isMT = (0 != p.readInt());
             dc.als = p.readInt();
             voiceSettings = p.readInt();
-            if (isGSM){
-                p.readInt();
-            }
-            dc.isVoice = (0 == voiceSettings) ? false : true;
-            dc.isVoicePrivacy = (0 != p.readInt());
+            dc.isVoice = (0 != voiceSettings);
             if (isGSM) {
-                p.readInt();
-                p.readInt();
-                p.readString();
+                boolean isVideo = (0 != p.readInt());   // Samsung CallDetails
+                int call_type = p.readInt();            // Samsung CallDetails
+                int call_domain = p.readInt();          // Samsung CallDetails
+                String csv = p.readString();            // Samsung CallDetails
             }
+            dc.isVoicePrivacy = (0 != p.readInt());
             dc.number = p.readString();
             int np = p.readInt();
             dc.numberPresentation = DriverCall.presentationFromCLIP(np);
@@ -327,14 +323,13 @@ public class KlteRIL extends RIL implements CommandsInterface {
         }
 
         return response;
-
     }
 
     @Override
     protected void
     processUnsolicited (Parcel p) {
         Object ret;
-        int dataPosition = p.dataPosition(); // save off position within the Parcel
+        int dataPosition = p.dataPosition();
         int response = p.readInt();
 
         switch(response) {
@@ -403,7 +398,6 @@ public class KlteRIL extends RIL implements CommandsInterface {
         Object ret = null;
 
         if (error == 0 || p.dataAvail() > 0) {
-            // either command succeeds or command fails but with data payload
             try {switch (rr.mRequest) {
             /*
  cat libs/telephony/ril_commands.h \
@@ -534,9 +528,7 @@ public class KlteRIL extends RIL implements CommandsInterface {
             case RIL_REQUEST_IMS_SEND_SMS: ret =  responseSMS(p); break;
             default:
                 throw new RuntimeException("Unrecognized solicited response: " + rr.mRequest);
-            //break;
             }} catch (Throwable tr) {
-                // Exceptions here usually mean invalid RIL responses
 
                 Rlog.w(RILJ_LOG_TAG, rr.serialString() + "< "
                         + requestToString(rr.mRequest)
@@ -659,12 +651,10 @@ public class KlteRIL extends RIL implements CommandsInterface {
         super.notifyRegistrantsCdmaInfoRec(infoRec);
     }
 
-
-
     @Override
     protected Object
     responseSMS(Parcel p) {
-        // Notify that sendSMS() can send the next SMS
+
         synchronized (mSMSLock) {
             mIsSendingSMS = false;
             mSMSLock.notify();
@@ -752,6 +742,19 @@ public class KlteRIL extends RIL implements CommandsInterface {
         if (newState == RadioState.RADIO_ON && mPendingGetSimStatus != null) {
             super.getIccCardStatus(mPendingGetSimStatus);
             mPendingGetSimStatus = null;
+        }
+    }
+
+    // This call causes ril to crash the socket, stopping further communication
+    @Override
+    public void
+    getHardwareConfig (Message result) {
+        riljLog("Ignoring call to 'getHardwareConfig'");
+        if (result != null) {
+            CommandException ex = new CommandException(
+                CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(result, null, ex);
+            result.sendToTarget();
         }
     }
 }
