@@ -35,8 +35,6 @@ on early-init
     mkdir /firmware 0771 system system
     mkdir /firmware-modem 0771 system system
 
-    mkdir /persist 0771 system system
-
     mkdir /efs 0771 system radio
 
     symlink /data/tombstones /tombstones
@@ -77,36 +75,7 @@ on fs
 
     mount_all fstab.qcom
 
-    # Keeping following partitions outside fstab file. As user may not have
-    # these partition flashed on the device. Failure to mount any partition in fstab file
-    # results in failure to launch late-start class.
-
-    wait /dev/block/platform/msm_sdcc.1/by-name/persist
-    check_fs /dev/block/platform/msm_sdcc.1/by-name/persist ext4
-    mount ext4 /dev/block/platform/msm_sdcc.1/by-name/persist /persist nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
-
-    wait /dev/block/platform/msm_sdcc.1/by-name/efs
-    check_fs /dev/block/platform/msm_sdcc.1/by-name/efs ext4
-    mount ext4 /dev/block/platform/msm_sdcc.1/by-name/efs /efs nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
-    chown system radio /efs
-    chmod 0771 /efs
-
-    restorecon_recursive /persist
     restorecon_recursive /efs
-
-#For Absolute Persistence Partition
-
-     mkdir /persdata 0755 system system
-     mkdir /persdata/absolute 0750 system system
-
-     wait /dev/block/platform/msm_sdcc.1/by-name/persdata
-     check_fs /dev/block/platform/msm_sdcc.1/by-name/persdata ext4
-     mount ext4 /dev/block/platform/msm_sdcc.1/by-name/persdata /persdata/absolute nosuid nodev barrier=1
-
-     chown system system /persdata
-     chmod 0755 /persdata
-     chown system system /persdata/absolute
-     chmod 0750 /persdata/absolute
 
     setprop ro.crypto.fuse_sdcard true
 
@@ -164,10 +133,6 @@ on post-fs-data
     # Create directory used by audio subsystem
     mkdir /data/misc/audio 0770 audio audio
 
-    # Mounting of persist is moved to 'on emmc-fs' and 'on fs' sections
-    # We chown/chmod /persist again so because mount is run as root + defaults
-    chown system system /persist
-    chmod 0771 /persist
     chmod 0664 /sys/devices/platform/msm_sdcc.1/polling
     chmod 0664 /sys/devices/platform/msm_sdcc.2/polling
     chmod 0664 /sys/devices/platform/msm_sdcc.3/polling
@@ -223,7 +188,7 @@ on post-fs-data
     chown system system /data/fota
 
     #Create directory for hostapd
-    mkdir /data/hostapd 0770 system wifi
+    mkdir /data/hostapd 0771 system wifi
     #Provide the access to hostapd.conf only to root and group
     chmod 0660 /data/hostapd/hostapd.conf
 
@@ -406,11 +371,9 @@ on boot
     chown bluetooth bluetooth /sys/module/hci_smd/parameters/hcismd_set
     chmod 0660 /sys/module/bluetooth_power/parameters/power
     chmod 0660 /sys/module/hci_smd/parameters/hcismd_set
-    restorecon_recursive /efs/bluetooth
-
     chmod 0660 /sys/class/rfkill/rfkill0/state
     chmod 0660 /proc/bluetooth/sleep/proto
-    chown bluetooth bluetooth /dev/ttyHS0
+    chown bluetooth net_bt_stack /dev/ttyHS0
     chmod 0660 /sys/module/hci_uart/parameters/ath_lpm
     chmod 0660 /sys/module/hci_uart/parameters/ath_btwrite
     chmod 0660 /dev/ttyHS0
@@ -434,8 +397,8 @@ on boot
     # bluetooth LPM
     chmod 0220 /proc/bluetooth/sleep/lpm
     chmod 0220 /proc/bluetooth/sleep/btwrite
-    chown bluetooth bluetooth /proc/bluetooth/sleep/lpm
-    chown bluetooth bluetooth /proc/bluetooth/sleep/btwrite
+    chown bluetooth net_bt_stack /proc/bluetooth/sleep/lpm
+    chown bluetooth net_bt_stack /proc/bluetooth/sleep/btwrite
     chmod 0600 /dev/btlock
     chown bluetooth bluetooth /dev/btlock
 
@@ -1013,18 +976,21 @@ on boot
 
     # permissions for bluetooth.
     setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
-    chown bluetooth bluetooth ro.bt.bdaddr_path
-    chown radio bluetooth /efs/bluetooth/bt_addr
+    chown bluetooth net_bt_stack ro.bt.bdaddr_path
+
+    chown radio net_bt_stack /efs/bluetooth/bt_addr
     chmod 0640 /efs/bluetooth/bt_addr
+    restorecon_recursive /efs/bluetooth
+
     chmod 0660 /sys/class/rfkill/rfkill0/state
-    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
-    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
 
     # bluetooth LPM
     chmod 0660 /proc/bluetooth/sleep/lpm
     chmod 0220 /proc/bluetooth/sleep/btwrite
-    chown bluetooth bluetooth /proc/bluetooth/sleep/lpm
-    chown bluetooth bluetooth /proc/bluetooth/sleep/btwrite
+    chown bluetooth net_bt_stack /proc/bluetooth/sleep/lpm
+    chown bluetooth net_bt_stack /proc/bluetooth/sleep/btwrite
     chmod 0600 /dev/btlock
     chown bluetooth bluetooth /dev/btlock
 
@@ -1040,7 +1006,6 @@ on boot
     chown system system /efs/gyro_cal_data
     chmod 0640 /efs/gyro_cal_data
     restorecon /efs/gyro_cal_data
-
 
 # Services begin here
 
@@ -1060,9 +1025,9 @@ service qseecomd /system/bin/qseecomd
     group system
 
 service mpdecision /system/bin/mpdecision --avg_comp
-   user root
-   disabled
-   oneshot
+    user root
+    group system
+    disabled
 
 service thermal-engine /system/bin/thermal-engine
     class core
@@ -1279,15 +1244,11 @@ on property:sys.boot_completed=1
     write /sys/module/cpu_boost/parameters/plug_boost_freq 1728000
     write /sys/module/cpu_boost/parameters/plug_boost_ms 5
 
-    # Fusion Kernel Specifics
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_booted
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_booted
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_booted 1
-
     # Post boot services
     start mpdecision
+    start qrngp
 
-service hostapd /system/bin/hostapd -dddd /data/hostapd/hostapd.conf
+service hostapd /system/bin/hostapd -dd /data/misc/wifi/hostapd.conf
     class late_start
     user root
     group root
