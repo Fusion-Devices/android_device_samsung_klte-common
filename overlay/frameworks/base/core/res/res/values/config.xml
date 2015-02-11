@@ -75,12 +75,6 @@
     <!-- Minimum screen brightness allowed by the power manager. -->
     <integer name="config_screenBrightnessDim">10</integer>
 
-    <!-- Screen brightness when dozing -->
-    <integer name="config_screenBrightnessDoze">17</integer>
-
-    <!-- Wether doze feature is enabled by default in settings. -->
-    <bool name="config_doze_enabled_by_default">false</bool>
-
     <!-- Default screen brightness setting.
          Must be in the range specified by minimum and maximum. -->
     <integer name="config_screenBrightnessSettingDefault">102</integer>
@@ -276,12 +270,21 @@
          The default is false. -->
     <bool name="config_lidControlsSleep">true</bool>
 
+    <!-- Flag specifying whether VoLTE & VT is availasble on device -->
+    <bool name="config_device_volte_vt_available">false</bool>
+
+    <!-- Screen brightness when dozing -->
+    <integer name="config_screenBrightnessDoze">17</integer>
+
     <!-- Dream of notifications -->
     <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>
     <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>
     <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>
 
-    <!-- Flag specifying whether VoLTE & VT is availasble on device -->
-    <bool name="config_device_volte_vt_available">false</bool>
+    <!-- Wether doze feature is enabled by default in settings. -->
+    <bool name="config_doze_enabled_by_default">true</bool>
+    <bool name="config_dozeAfterScreenOff">true</bool>
+    <bool name="doze_pulse_on_significant_motion">true</bool>
+    <bool name="doze_display_state_supported">true</bool>
 
 </resources>
