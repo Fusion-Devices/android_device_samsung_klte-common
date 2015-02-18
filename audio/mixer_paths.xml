@@ -94,8 +94,8 @@
 	<ctl name="MultiMedia1 Mixer SLIM_0_TX" value="0" />
 	<ctl name="MultiMedia1 Mixer SLIM_4_TX" value="0" />
 	<ctl name="MultiMedia1 Mixer AUX_PCM_UL_TX" value="0" />
-	<ctl name="MultiMedia1 Mixer VOC_REC_UL" value="0" />
-	<ctl name="MultiMedia1 Mixer VOC_REC_DL" value="0" />
+	<ctl name="MultiMedia1 Mixer VOC_REC_UL" value="1" />
+	<ctl name="MultiMedia1 Mixer VOC_REC_DL" value="1" />
 
 	<ctl name="Voice_Tx Mixer SLIM_0_TX_Voice" value="0" />
 	<ctl name="Voice_Tx Mixer AUX_PCM_TX_Voice" value="0" />
