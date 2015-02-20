@@ -35,6 +35,10 @@ TARGET_KERNEL_SOURCE := kernel/samsung/klte
 
 # Fusion Optimizations
 FUSION-OPT=true
+FUSION_O3 := false
+FUSION_STRICT := false
+TARGET_FUSION_ROM := 4.8
+TARGET_FUSION_KERNEL := 4.10-sm
 
 # Audio
 BOARD_HAVE_NEW_QCOM_CSDCLIENT := true
