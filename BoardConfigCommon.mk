@@ -35,9 +35,11 @@ TARGET_KERNEL_SOURCE := kernel/samsung/klte
 
 # Fusion Optimizations
 FUSION-OPT=true
-FUSION_O3 := false
-FUSION_STRICT := false
-TARGET_FUSION_ROM := 4.8
+FUSION_O3 := true
+FUSION_STRICT := true
+FUSION_KRAIT := true
+FUSION_GRAPHITE := true
+TARGET_FUSION_ROM := 4.9
 TARGET_FUSION_KERNEL := 4.10-sm
 
 # Audio
