@@ -34,7 +34,7 @@ TARGET_KERNEL_SELINUX_CONFIG := selinux_defconfig
 TARGET_KERNEL_SOURCE := kernel/samsung/klte
 
 # Fusion Optimizations
-FUSION-OPT=true
+FUSION-OPT= true
 FUSION_O3 := true
 FUSION_STRICT := true
 FUSION_KRAIT := true
