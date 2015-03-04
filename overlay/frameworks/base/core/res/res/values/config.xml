@@ -275,7 +275,7 @@
          if the sensor HAL correctly handles the proximity sensor as a wake-up source.
          Otherwise, the device may fail to wake out of suspend reliably.
          The default is false. -->
-    <bool name="config_suspendWhenScreenOffDueToProximity">true</bool>
+    <bool name="config_suspendWhenScreenOffDueToProximity">false</bool>
 
     <!-- Enable the option to check proximity sensor when deciding whether to
          turn the screen on
@@ -288,6 +288,9 @@
     <bool name="config_device_volte_vt_available">false</bool>
 
     <bool name="config_dreamsSupported">true</bool>
+
+    <!-- If supported, are dreams enabled? (by default) -->
+    <bool name="config_dreamsEnabledByDefault">false</bool>
 
     <!-- Screen brightness when dozing -->
     <integer name="config_screenBrightnessDoze">10</integer>
