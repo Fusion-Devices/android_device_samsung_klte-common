@@ -1,2 +1,1 @@
-allow tee efs_file:file rw_file_perms;
-allow tee efs_file:dir rw_dir_perms;
+allow tee qseecomd_prop:property_service set;
