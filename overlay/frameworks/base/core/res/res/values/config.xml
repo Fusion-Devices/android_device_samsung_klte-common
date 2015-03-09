@@ -274,20 +274,6 @@
          The default is false. -->
     <bool name="config_lidControlsSleep">true</bool>
 
-    <!-- Indicate whether to allow the device to suspend when the screen is off
-         due to the proximity sensor.  This resource should only be set to true
-         if the sensor HAL correctly handles the proximity sensor as a wake-up source.
-         Otherwise, the device may fail to wake out of suspend reliably.
-         The default is false. -->
-    <bool name="config_suspendWhenScreenOffDueToProximity">false</bool>
-
-    <!-- Enable the option to check proximity sensor when deciding whether to
-         turn the screen on
-         NOTE ! - Enable for devices that have a fast response proximity sensor
-    -->
-    <bool name="config_proximityCheckOnWake">true</bool>
-    <integer name="config_proximityCheckTimeout">400</integer>
-
     <!-- Flag specifying whether VoLTE & VT is availasble on device -->
     <bool name="config_device_volte_vt_available">false</bool>
 
@@ -297,13 +283,15 @@
     <bool name="config_dreamsEnabledByDefault">false</bool>
 
     <!-- Screen brightness when dozing -->
-    <integer name="config_screenBrightnessDoze">10</integer>
+    <integer name="config_screenBrightnessDoze">17</integer>
 
     <!-- Dream of notifications -->
     <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>
-    <bool name="config_dozeAfterScreenOff">true</bool>
-    <bool name="config_dozeUseAccelerometer">true</bool>
     <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>
     <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>
+
+    <!-- Wether doze feature is enabled by default in settings. -->
+    <bool name="config_doze_enabled_by_default">true</bool>
+    <bool name="config_dozeAfterScreenOff">true</bool>
 
 </resources>
