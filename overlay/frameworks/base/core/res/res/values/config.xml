@@ -274,8 +274,8 @@
          The default is false. -->
     <bool name="config_lidControlsSleep">true</bool>
 
-    <!-- Flag specifying whether VoLTE & VT is availasble on device -->
-    <bool name="config_device_volte_vt_available">false</bool>
+    <!-- Flag specifying whether VoLTE & VT is availasble on device
+    <bool name="config_device_volte_vt_available">false</bool> -->
 
     <bool name="config_dreamsSupported">true</bool>
 
@@ -291,7 +291,7 @@
     <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>
 
     <!-- Wether doze feature is enabled by default in settings. -->
-    <bool name="config_doze_enabled_by_default">true</bool>
+    <!-- <bool name="config_doze_enabled_by_default">true</bool> -->
     <bool name="config_dozeAfterScreenOff">true</bool>
 
 </resources>
