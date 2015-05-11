@@ -36,12 +36,21 @@ TARGET_KERNEL_SOURCE := kernel/samsung/klte
 # Fusion Optimizations
 FUSION_OPT := true
 FUSION_O3 := true
-FUSION_STRICT := false
+FUSION_STRICT := true
 FUSION_KRAIT := true
 FUSION_GRAPHITE := true
 FUSION_PIPE := false
-TARGET_FUSION_ROM := 4.9
+TARGET_FUSION_ROM := 4.8
 TARGET_FUSION_KERNEL := 4.9-sm
+
+# Enable dex-preoptimization to speed up first boot sequence
+ifeq ($(HOST_OS),linux)
+  ifeq ($(TARGET_BUILD_VARIANT),user)
+    ifeq ($(WITH_DEXPREOPT),)
+      WITH_DEXPREOPT := true
+    endif
+  endif
+endif
 
 # Audio
 BOARD_HAVE_NEW_QCOM_CSDCLIENT := true
@@ -135,3 +144,6 @@ TARGET_USERIMAGES_USE_F2FS := true
 
 # inherit from the proprietary version
 -include vendor/samsung/klte-common/BoardConfigVendor.mk
+
+#SaberMod
+-include vendor/fusion/config/sm.mk
