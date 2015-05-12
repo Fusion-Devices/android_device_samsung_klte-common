@@ -40,12 +40,12 @@ FUSION_STRICT := true
 FUSION_KRAIT := true
 FUSION_GRAPHITE := true
 FUSION_PIPE := false
-TARGET_FUSION_ROM := 4.8
+TARGET_FUSION_ROM := 4.9
 TARGET_FUSION_KERNEL := 4.9-sm
 
 # Enable dex-preoptimization to speed up first boot sequence
 ifeq ($(HOST_OS),linux)
-  ifeq ($(TARGET_BUILD_VARIANT),user)
+  ifeq ($(TARGET_BUILD_VARIANT),userdebug)
     ifeq ($(WITH_DEXPREOPT),)
       WITH_DEXPREOPT := true
     endif
