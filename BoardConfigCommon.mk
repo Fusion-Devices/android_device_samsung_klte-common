@@ -39,18 +39,20 @@ FUSION_O3 := true
 FUSION_STRICT := true
 FUSION_KRAIT := true
 FUSION_GRAPHITE := true
-FUSION_PIPE := false
+FUSION_PIPE := true
+FUSION_ENABLE_GCCONLY := true
+FLOOP_NEST_OPTIMIZE := true
 TARGET_FUSION_ROM := 4.9
 TARGET_FUSION_KERNEL := 4.9-sm
 
 # Enable dex-preoptimization to speed up first boot sequence
-ifeq ($(HOST_OS),linux)
-  ifeq ($(TARGET_BUILD_VARIANT),userdebug)
-    ifeq ($(WITH_DEXPREOPT),)
-      WITH_DEXPREOPT := true
-    endif
-  endif
-endif
+#ifeq ($(HOST_OS),linux)
+#  ifeq ($(TARGET_BUILD_VARIANT),userdebug)
+#    ifeq ($(WITH_DEXPREOPT),)
+#      WITH_DEXPREOPT := true
+#    endif
+#  endif
+#endif
 
 # Audio
 BOARD_HAVE_NEW_QCOM_CSDCLIENT := true
