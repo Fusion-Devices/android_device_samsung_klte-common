@@ -19,6 +19,8 @@ LOCAL_PATH := device/samsung/klte-common
 
 TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include
 
+HOST_NAME :=
+
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := MSM8974
 
@@ -37,6 +39,7 @@ TARGET_KERNEL_SOURCE := kernel/samsung/klte
 FUSION_OPT := true
 FUSION_O3 := true
 FUSION_STRICT := true
+FUSION_OFAST := true
 FUSION_KRAIT := true
 FUSION_GRAPHITE := true
 FUSION_PIPE := true
